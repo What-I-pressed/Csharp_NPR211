@@ -11,6 +11,9 @@ namespace _3.Database.Interfaces
     //Виконання опрецій над певною таблицею
     public interface IManager<T> : IDisposable
     {
+
+        public event DelRecordNumber RecordNumber;
+
         /// <summary>
         /// Списко об'єктів таблиці
         /// </summary>
@@ -42,5 +45,9 @@ namespace _3.Database.Interfaces
         /// </summary>
         /// <param name="count">Необхідна кількість записів</param>
         public void GenerateRandom(int count);
+
     }
+
+    public delegate void DelRecordNumber(string message);
+    
 }

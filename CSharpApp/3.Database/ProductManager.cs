@@ -10,6 +10,7 @@ namespace _3.Database
 {
     public class ProductManager : IManager<Product>
     {
+        public event DelRecordNumber RecordNumber;
         private readonly CategoryManager _categoryManager;
         private SqlConnection _conn;
         public ProductManager(string nameDatabase)

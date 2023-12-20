@@ -1,6 +1,8 @@
-﻿using _3.Database.Helpers;
+﻿using _3.Database.Entities;
+using _3.Database.Helpers;
 using Microsoft.Extensions.Configuration;
 using SixLabors.ImageSharp;
+using Bogus;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -196,7 +198,7 @@ namespace _3.Database
                 while (!reader.EndOfStream)
                 {
                     string query = reader.ReadLine();
-                    SqlCommand sqlCommand = _conn.CreateCommand(); //окманди виконуєються на основі підлкючення
+                    SqlCommand sqlCommand = _conn.CreateCommand(); //команди виконуєються на основі підлкючення
                     sqlCommand.CommandText = query; //текст команди
                                                     //виконати комнаду до сервера
                     sqlCommand.ExecuteNonQuery();
@@ -227,5 +229,33 @@ namespace _3.Database
             _conn.Close();
         }
 
+        public void GenerateRandom(int count)
+        {
+            var faker = new Faker<Client>("uk")
+               .RuleFor(u => u.FirstName, f => f.Name.FirstName())
+               .RuleFor(u => u.LastName, f => f.Name.LastName())
+               .RuleFor(u => u.CreatedDate, f =>
+               {
+                   return DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+               })
+               .RuleFor(u => u.DateOfBirth, f =>
+               {
+                   return DateTime.Now.AddYears(-20).ToString("yyyy-MM-dd hh:mm:ss");
+               })
+               .RuleFor(u => u.Phone, f => f.Phone.PhoneNumber());
+            for (int i = 0; i < count; i++)
+            {
+                Client c = faker.Generate();
+                c.ProfessionId = 1;
+                string sql = "INSERT INTO tblClients " +
+                "(FirstName, ProfessionId, LastName, Phone, DateOfBirth, CreatedDate, Sex) " +
+                $"VALUES(N'{c.FirstName}', {c.ProfessionId}, N'{c.LastName}', " +
+                $"N'{c.Phone}', '{c.DateOfBirth}', '{c.CreatedDate}', {(c.Sex ? 1 : 0)});";
+                SqlCommand sqlCommand = _conn.CreateCommand(); //окманди виконуєються на основі підлкючення
+                sqlCommand.CommandText = sql; //текст команди
+                                              //виконати комнаду до сервера
+                sqlCommand.ExecuteNonQuery();
+            }
+        }
     }
 }

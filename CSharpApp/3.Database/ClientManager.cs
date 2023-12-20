@@ -4,6 +4,11 @@ using Bogus;
 using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
 
+
+
+
+
+
 namespace _3.Database
 {
     /// <summary>
@@ -11,6 +16,7 @@ namespace _3.Database
     /// </summary>
     public class ClientManager: IManager<Client>
     {
+        public event DelRecordNumber RecordNumber;
         private SqlConnection _conn;
         private readonly IManager<Profession> _proffesionManager;
         /// <summary>
@@ -31,6 +37,7 @@ namespace _3.Database
             _conn = new SqlConnection(conStr);
             _conn.Open();
             _proffesionManager = new ProfessionManager(_conn);
+            RecordNumber += (string message) => Console.WriteLine(message);
         }
 
         /// <summary>
@@ -110,17 +117,63 @@ namespace _3.Database
 
         public Client GetById(int id)
         {
-            throw new NotImplementedException();
+            SqlCommand command = _conn.CreateCommand();
+            string query = $"Select * FROM tblClients WHERE Id = {id}";
+            command.CommandText = query;
+            using(SqlDataReader reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    Client c = new Client();
+                    c.Id = int.Parse(reader["Id"].ToString());
+                    c.Phone = reader["Phone"].ToString();
+                    c.FirstName = reader["FirstName"].ToString();
+                    c.LastName = reader["LastName"].ToString();
+                    c.CreatedDate = reader["CreatedDate"].ToString();
+                    c.DateOfBirth = reader["DateOfBirth"].ToString();
+                    Console.WriteLine(c);
+                    return c;
+                }
+            }
+            return null;
         }
 
-        public void Delete(Client entity)
+        public void Delete(Client client)
         {
-            throw new NotImplementedException();
+            string sql = $"DELETE FROM tblClients WHERE Id = {client.Id};";
+            SqlCommand sqlCommand = _conn.CreateCommand(); //окманди виконуєються на основі підлкючення
+            sqlCommand.CommandText = sql; //текст команди
+                                          //виконати комнаду до сервера
+            sqlCommand.ExecuteNonQuery();
+            RecordNumber($"Object is successfully deleted");
         }
 
-        public void Update(Client entity)
+        public void Update(Client client)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Client with this id will be regenerated randomly");
+            var faker = new Faker<Client>("uk")
+               .RuleFor(u => u.FirstName, f => f.Name.FirstName())
+               .RuleFor(u => u.LastName, f => f.Name.LastName())
+               .RuleFor(u => u.CreatedDate, f =>
+               {
+                   return DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+               })
+               .RuleFor(u => u.DateOfBirth, f =>
+               {
+                   return DateTime.Now.AddYears(-20).ToString("yyyy-MM-dd hh:mm:ss");
+               })
+               .RuleFor(u => u.Phone, f => f.Phone.PhoneNumber()).
+               RuleFor(u => u.ProfessionId, f => 1);
+            Client c = faker.Generate();
+            string sql = $"UPDATE tblClients SET FirstName = N'{c.FirstName}'," +
+                $"ProfessionId = {c.ProfessionId}, LastName = N'{c.LastName}'," +
+                $"Phone = N'{c.Phone}', DateOfBirth = '{c.DateOfBirth}', CreatedDate = '{c.CreatedDate}', Sex = {(c.Sex ? 1 : 0)}" + 
+                $"Where Id = {client.Id};";
+            SqlCommand sqlCommand = _conn.CreateCommand(); //окманди виконуєються на основі підлкючення
+            sqlCommand.CommandText = sql; //текст команди
+                                          //виконати комнаду до сервера
+            sqlCommand.ExecuteNonQuery();
+            RecordNumber($"Object is successfully updated");
         }
 
         public void GenerateRandom(int count)
@@ -149,6 +202,7 @@ namespace _3.Database
                 sqlCommand.CommandText = sql; //текст команди
                                               //виконати комнаду до сервера
                 sqlCommand.ExecuteNonQuery();
+                RecordNumber($"Object is successfully added.Object count : {i}");
             }
         }
     }

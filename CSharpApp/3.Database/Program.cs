@@ -2,6 +2,7 @@
 using _3.Database.Interfaces;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Text;
 
 namespace _3.Database
@@ -113,7 +114,13 @@ namespace _3.Database
                         }
                     case 7:
                         {
-                            databaseManager.SetInsertDataTables();
+                            Console.Write("Введіть кількість об'єктів для генерації : ");
+                            int count = int.Parse(Console.ReadLine());
+                            Stopwatch stopwatch= Stopwatch.StartNew();
+                            stopwatch.Start();
+                            databaseManager.GenerateRandom(count);
+                            Console.WriteLine($"На генерацію обєктів було затрачено {stopwatch.Elapsed.TotalMilliseconds} мілісекунд");
+                            stopwatch.Stop();
                             break;
                         }
                     case 8:

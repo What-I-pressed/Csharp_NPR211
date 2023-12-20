@@ -2,6 +2,7 @@
 using _3.Database.Interfaces;
 using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
+using Bogus;
 
 namespace _3.Database
 {
@@ -10,6 +11,7 @@ namespace _3.Database
     /// </summary>
     public class ProfessionManager : IManager<Profession>
     {
+        public event DelRecordNumber RecordNumber;
         private SqlConnection _conn;
         /// <summary>
         /// Підлкючення до конкретної бази даних на сервері
@@ -140,6 +142,14 @@ namespace _3.Database
         public void GenerateRandom(int count)
         {
             throw new NotImplementedException();
+            //var faker = new Faker<Profession>("uk");
+            //p.Name = Console.ReadLine();
+            //
+            //string sql = $"INSERT INTO tblProfessions ([Name]) VALUES(N'{p.Name}');";
+            //SqlCommand sqlCommand = _conn.CreateCommand(); //окманди виконуєються на основі підлкючення
+            //sqlCommand.CommandText = sql; //текст команди
+            ////виконати комнаду до сервера
+            //sqlCommand.ExecuteNonQuery();
         }
     }
 }

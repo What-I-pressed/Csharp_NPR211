@@ -1,0 +1,18 @@
+{
+  "exclude": [
+    "**/bin",
+    "**/bower_components",
+    "**/jspm_packages",
+    "**/node_modules",
+    "**/obj",
+    "**/platforms"
+  ]
+
+  
+  "ConnectionStrings": {
+    "host": "20.65.144.204",
+    "user": "kaban",
+    "password": "9[nV`e7VN`0%"
+  }
+
+}
